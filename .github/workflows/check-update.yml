@@ -134,24 +134,26 @@ jobs:
           # Clean up
           Remove-Item $tempFile -Force
 
-      - name: Create Pull Request
+      - name: Commit and push changes
         if: env.NEEDS_UPDATE == 'True'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Update senzingsdk-runtime-unofficial to version ${{ env.LATEST_VERSION }}"
-          title: "Update Senzing SDK Runtime to ${{ env.LATEST_VERSION }}"
-          body: |
-            Automated update of Senzing SDK Runtime to version ${{ env.LATEST_VERSION }}
+        shell: pwsh
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-            **Changes:**
-            - Updated version from ${{ env.CURRENT_VERSION }} to ${{ env.LATEST_VERSION }}
-            - Updated SHA256 hash
+          git add bucket/senzingsdk-runtime-unofficial.json
+          git commit -m "Update senzingsdk-runtime-unofficial to version $env:LATEST_VERSION
 
-            **Source:**
-            - S3 Bucket: ${{ env.S3_URL }}
-            - File: ${{ env.LATEST_KEY }}
+          Automated update from GitHub Actions workflow.
 
-            Please review and merge if the update is valid.
-          branch: update-senzingsdk-${{ env.LATEST_VERSION }}
-          delete-branch: true
+          Changes:
+          - Updated version from $env:CURRENT_VERSION to $env:LATEST_VERSION
+          - Updated SHA256 hash
+
+          Source:
+          - S3 Bucket: $env:S3_URL
+          - File: $env:LATEST_KEY"
+
+          git push origin main
+
+          Write-Host "Successfully pushed version $env:LATEST_VERSION to main branch"
