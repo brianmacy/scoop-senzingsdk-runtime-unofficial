@@ -189,8 +189,14 @@ Header files are in: `$env:SENZING_DIR\sdk\c\`
 
 Add the SDK to your classpath:
 
+**PowerShell:**
 ```powershell
 $env:CLASSPATH = "$env:SENZING_DIR\sdk\java\sz-sdk.jar;$env:CLASSPATH"
+```
+
+**Command Prompt:**
+```cmd
+set CLASSPATH=%SENZING_DIR%\sdk\java\sz-sdk.jar;%CLASSPATH%
 ```
 
 Or in your build tool (Maven, Gradle):
@@ -204,9 +210,16 @@ Or in your build tool (Maven, Gradle):
 
 Install the NuGet package from the SDK:
 
+**PowerShell:**
 ```powershell
 cd $env:SENZING_DIR\sdk\dotnet
 # Extract and reference Senzing.Sdk.4.x.x.nupkg in your project
+```
+
+**Command Prompt:**
+```cmd
+cd %SENZING_DIR%\sdk\dotnet
+REM Extract and reference Senzing.Sdk.4.x.x.nupkg in your project
 ```
 
 Or via NuGet Package Manager:
@@ -230,6 +243,7 @@ from senzing import SzEngine
 
 The SDK includes database schemas for multiple databases:
 
+**PowerShell:**
 ```powershell
 # SQLite (default - already included)
 $env:SENZING_DIR\var\sqldb\G2C.db
@@ -242,6 +256,21 @@ $env:SENZING_DIR\resources\schema\szcore-schema-mysql-create.sql
 
 # MSSQL schema
 $env:SENZING_DIR\resources\schema\szcore-schema-mssql-create.sql
+```
+
+**Command Prompt:**
+```cmd
+REM SQLite (default - already included)
+%SENZING_DIR%\var\sqldb\G2C.db
+
+REM PostgreSQL schema
+%SENZING_DIR%\resources\schema\szcore-schema-postgresql-create.sql
+
+REM MySQL schema
+%SENZING_DIR%\resources\schema\szcore-schema-mysql-create.sql
+
+REM MSSQL schema
+%SENZING_DIR%\resources\schema\szcore-schema-mssql-create.sql
 ```
 
 ### Testing Your Installation
@@ -296,11 +325,14 @@ type "%SENZING_DIR%\etc\sz_engine_config.ini"
 If you see an error about EULA acceptance:
 
 1. Accept interactively: Re-run `scoop install` and type `yes` when prompted
-2. Set environment variable: `$env:SENZING_EULA_ACCEPTED = "yes"`
+2. Set environment variable:
+   - PowerShell: `$env:SENZING_EULA_ACCEPTED = "yes"`
+   - Command Prompt: `set SENZING_EULA_ACCEPTED=yes`
 3. Set scoop config: `scoop config SENZING_EULA_ACCEPTED yes`
 
 ### Check Installation Status
 
+**PowerShell:**
 ```powershell
 # List installed apps
 scoop list
@@ -316,11 +348,28 @@ $env:PATH -split ';' | Select-String 'senzing'
 where.exe Sz.dll
 ```
 
+**Command Prompt:**
+```cmd
+REM List installed apps
+scoop list
+
+REM Show detailed info (version, install path, etc.)
+scoop info senzingsdk-runtime-unofficial
+
+REM Check environment variables
+echo %SENZING_DIR%
+echo %PATH%
+
+REM Verify DLLs are in PATH
+where Sz.dll
+```
+
 ### Installation Fails or Gets Stuck
 
 If installation fails:
 
-```powershell
+**PowerShell / Command Prompt:**
+```
 # Clean up failed installation
 scoop uninstall senzingsdk-runtime-unofficial
 scoop cache rm senzingsdk-runtime-unofficial
@@ -334,20 +383,35 @@ scoop install senzingsdk-runtime-unofficial
 If you get DLL loading errors:
 
 1. Verify PATH is set correctly:
+
+   PowerShell:
    ```powershell
    $env:PATH -split ';' | Select-String 'senzing'
+   ```
+
+   Command Prompt:
+   ```cmd
+   echo %PATH% | findstr /i senzing
    ```
 
 2. Restart your terminal/IDE to pick up new environment variables
 
 3. Check DLLs exist:
+
+   PowerShell:
    ```powershell
    dir $env:SENZING_DIR\lib\*.dll
    ```
 
+   Command Prompt:
+   ```cmd
+   dir %SENZING_DIR%\lib\*.dll
+   ```
+
 ### Uninstall
 
-```powershell
+**PowerShell / Command Prompt:**
+```
 # Uninstall the package
 scoop uninstall senzingsdk-runtime-unofficial
 
@@ -366,7 +430,8 @@ This bucket is automatically maintained via GitHub Actions:
 
 To get the latest version:
 
-```powershell
+**PowerShell / Command Prompt:**
+```
 scoop update  # Update bucket metadata
 scoop update senzingsdk-runtime-unofficial  # Update the package
 ```
