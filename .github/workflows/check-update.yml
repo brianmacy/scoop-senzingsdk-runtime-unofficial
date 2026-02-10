@@ -1,0 +1,157 @@
+name: Check for Senzing SDK Updates
+
+on:
+  schedule:
+    # Run daily at 08:00 UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      s3_url:
+        description: 'S3 bucket URL (optional override)'
+        required: false
+        default: 'https://senzing-production-win.s3.amazonaws.com/'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-update:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set S3 URL
+        shell: pwsh
+        run: |
+          $s3Url = "${{ github.event.inputs.s3_url }}"
+          if ([string]::IsNullOrEmpty($s3Url)) {
+            $s3Url = "https://senzing-production-win.s3.amazonaws.com/"
+          }
+          echo "S3_URL=$s3Url" >> $env:GITHUB_ENV
+
+      - name: Fetch S3 bucket listing
+        id: fetch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          Write-Host "Fetching S3 bucket listing from: $env:S3_URL"
+          try {
+            $response = Invoke-RestMethod -Uri $env:S3_URL -Method Get
+          } catch {
+            Write-Error "Failed to fetch S3 bucket listing: $_"
+            exit 1
+          }
+
+          # Extract versions
+          $versionRegex = 'SenzingSDK_([\d.]+)\.zip'
+          $versions = @()
+
+          $response.ListBucketResult.Contents | ForEach-Object {
+            if ($_.Key -match $versionRegex) {
+              $version = $matches[1]
+              if ($version -match '^\d+\.\d+\.\d+\.\d+$') {
+                $versions += [PSCustomObject]@{
+                  Version = [Version]$version
+                  VersionString = $version
+                  Key = $_.Key
+                }
+              }
+            }
+          }
+
+          if ($versions.Count -eq 0) {
+            Write-Error "No valid versions found in S3 bucket"
+            exit 1
+          }
+
+          # Get latest version
+          $latestVersion = ($versions | Sort-Object -Property Version -Descending)[0]
+          Write-Host "Latest version found: $($latestVersion.VersionString)"
+
+          echo "LATEST_VERSION=$($latestVersion.VersionString)" >> $env:GITHUB_ENV
+          echo "LATEST_KEY=$($latestVersion.Key)" >> $env:GITHUB_ENV
+
+      - name: Check current manifest version
+        id: check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $manifestPath = "bucket/senzingsdk-runtime-unofficial.json"
+          $manifest = Get-Content -Path $manifestPath -Raw | ConvertFrom-Json
+          $currentVersion = $manifest.version
+
+          Write-Host "Current version: $currentVersion"
+          Write-Host "Latest version: $env:LATEST_VERSION"
+
+          echo "CURRENT_VERSION=$currentVersion" >> $env:GITHUB_ENV
+
+          $needsUpdate = $false
+          if ($currentVersion -eq '0.0.0.0') {
+            Write-Host "Manifest has placeholder version, update needed"
+            $needsUpdate = $true
+          } elseif ([Version]$currentVersion -lt [Version]$env:LATEST_VERSION) {
+            Write-Host "New version available"
+            $needsUpdate = $true
+          } else {
+            Write-Host "Manifest is up to date"
+          }
+
+          echo "NEEDS_UPDATE=$needsUpdate" >> $env:GITHUB_ENV
+
+      - name: Download and update manifest
+        if: env.NEEDS_UPDATE == 'True'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $downloadUrl = "$env:S3_URL$env:LATEST_KEY"
+          $tempFile = Join-Path $env:TEMP "SenzingSDK_$env:LATEST_VERSION.zip"
+          $manifestPath = "bucket/senzingsdk-runtime-unofficial.json"
+
+          Write-Host "Downloading: $downloadUrl"
+          Invoke-WebRequest -Uri $downloadUrl -OutFile $tempFile -UseBasicParsing
+
+          Write-Host "Computing SHA256 hash..."
+          $hash = (Get-FileHash -Path $tempFile -Algorithm SHA256).Hash.ToLower()
+          Write-Host "SHA256: $hash"
+
+          # Update manifest
+          $manifest = Get-Content -Path $manifestPath -Raw | ConvertFrom-Json
+          $manifest.version = $env:LATEST_VERSION
+          $manifest.architecture.'64bit'.hash = $hash
+
+          # Write updated manifest with proper formatting
+          $manifestJson = $manifest | ConvertTo-Json -Depth 10
+          Set-Content -Path $manifestPath -Value $manifestJson -Encoding UTF8
+
+          Write-Host "Manifest updated successfully"
+
+          # Clean up
+          Remove-Item $tempFile -Force
+
+      - name: Create Pull Request
+        if: env.NEEDS_UPDATE == 'True'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update senzingsdk-runtime-unofficial to version ${{ env.LATEST_VERSION }}"
+          title: "Update Senzing SDK Runtime to ${{ env.LATEST_VERSION }}"
+          body: |
+            Automated update of Senzing SDK Runtime to version ${{ env.LATEST_VERSION }}
+
+            **Changes:**
+            - Updated version from ${{ env.CURRENT_VERSION }} to ${{ env.LATEST_VERSION }}
+            - Updated SHA256 hash
+
+            **Source:**
+            - S3 Bucket: ${{ env.S3_URL }}
+            - File: ${{ env.LATEST_KEY }}
+
+            Please review and merge if the update is valid.
+          branch: update-senzingsdk-${{ env.LATEST_VERSION }}
+          delete-branch: true

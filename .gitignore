@@ -1,0 +1,23 @@
+# Scoop bucket .gitignore
+
+# Test downloads
+*.zip
+*.zip.sha256
+
+# PowerShell test output
+test/
+temp/
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

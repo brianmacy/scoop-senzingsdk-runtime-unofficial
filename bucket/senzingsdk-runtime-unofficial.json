@@ -1,0 +1,67 @@
+{
+    "version": "0.0.0.0",
+    "description": "Senzing SDK Runtime for Windows (unofficial package)",
+    "homepage": "https://senzing.com/senzing-api/",
+    "license": {
+        "identifier": "Proprietary",
+        "url": "https://senzing.com/software-license-agreement/"
+    },
+    "notes": [
+        "Senzing SDK Runtime has been installed.",
+        "",
+        "Environment variables have been configured:",
+        "  SENZING_DIR: $dir\\er",
+        "  PATH: $dir\\er\\lib (added)",
+        "",
+        "To verify installation:",
+        "  echo $env:SENZING_DIR",
+        "",
+        "IMPORTANT: By installing this package, you accept the Senzing EULA:",
+        "  https://senzing.com/software-license-agreement/"
+    ],
+    "extract_dir": "senzing",
+    "architecture": {
+        "64bit": {
+            "url": "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_$version.zip",
+            "hash": ""
+        }
+    },
+    "pre_install": [
+        "$eulaUrl = 'https://senzing.com/software-license-agreement/'",
+        "",
+        "# Check if EULA has been accepted",
+        "$envAccepted = $env:SENZING_EULA_ACCEPTED",
+        "$configAccepted = scoop config SENZING_EULA_ACCEPTED",
+        "",
+        "if ($envAccepted -ne 'yes' -and $configAccepted -ne 'yes') {",
+        "    Write-Host ''",
+        "    Write-Host 'Senzing SDK Runtime requires acceptance of the End User License Agreement (EULA).' -ForegroundColor Yellow",
+        "    Write-Host \"EULA: $eulaUrl\" -ForegroundColor Cyan",
+        "    Write-Host ''",
+        "    Write-Host 'To accept the EULA, you can:' -ForegroundColor Yellow",
+        "    Write-Host '  1. Set environment variable: $env:SENZING_EULA_ACCEPTED = \"yes\"' -ForegroundColor Gray",
+        "    Write-Host '  2. Set scoop config: scoop config SENZING_EULA_ACCEPTED yes' -ForegroundColor Gray",
+        "    Write-Host ''",
+        "    $response = Read-Host 'Do you accept the Senzing EULA? (yes/no)'",
+        "    if ($response -ne 'yes') {",
+        "        throw 'Installation cancelled: EULA not accepted'",
+        "    }",
+        "}"
+    ],
+    "env_add_path": "er\\lib",
+    "env_set": {
+        "SENZING_DIR": "$dir\\er"
+    },
+    "checkver": {
+        "url": "https://senzing-production-win.s3.amazonaws.com/",
+        "regex": "SenzingSDK_([\\d.]+)\\.zip"
+    },
+    "autoupdate": {
+        "extract_dir": "senzing",
+        "architecture": {
+            "64bit": {
+                "url": "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_$version.zip"
+            }
+        }
+    }
+}
