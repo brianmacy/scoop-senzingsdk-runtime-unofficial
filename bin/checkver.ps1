@@ -116,6 +116,7 @@ try {
 
     # Update manifest
     $manifest.version = $latestVersion.VersionString
+    $manifest.architecture.'64bit'.url = "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_$($latestVersion.VersionString).zip"
     $manifest.architecture.'64bit'.hash = $hash
 
     # Write updated manifest

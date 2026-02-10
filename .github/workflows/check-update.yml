@@ -123,6 +123,7 @@ jobs:
           # Update manifest
           $manifest = Get-Content -Path $manifestPath -Raw | ConvertFrom-Json
           $manifest.version = $env:LATEST_VERSION
+          $manifest.architecture.'64bit'.url = "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_$env:LATEST_VERSION.zip"
           $manifest.architecture.'64bit'.hash = $hash
 
           # Write updated manifest with proper formatting

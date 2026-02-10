@@ -22,7 +22,7 @@
   "extract_dir": "senzing",
   "architecture": {
     "64bit": {
-      "url": "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_$version.zip",
+      "url": "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_4.2.0.26023.zip",
       "hash": "8fc9bbc783fe10d07cfd8d7c6daba5a1180f9cc02b488ec55d459931c2cefbf0"
     }
   },
