@@ -77,17 +77,160 @@ scoop info senzingsdk-runtime-unofficial
 After installation, the following environment variables are automatically configured:
 
 - **`SENZING_DIR`**: Points to the Senzing installation directory (`$SCOOP\apps\senzingsdk-runtime-unofficial\current\er`)
-- **`PATH`**: The `er\lib` directory is added to your PATH
+- **`PATH`**: The `er\lib` directory is added to your PATH for DLL access
 
 ### Verify Installation
 
 ```powershell
 # Check environment variable
 echo $env:SENZING_DIR
+# Output: C:\Users\<YourName>\scoop\apps\senzingsdk-runtime-unofficial\current\er
 
 # Verify directory structure
 dir $env:SENZING_DIR
 ```
+
+### What's Included
+
+The Senzing SDK Runtime includes:
+
+- **`bin/`**: Executables including `sqlite3.exe`
+- **`lib/`**: Core DLLs (Sz.dll, g2*.dll, etc.) and dependencies (OpenSSL, SQLite)
+- **`sdk/`**: SDKs for C, Java, and .NET
+  - `c/`: C header files (`libSz.h`, etc.)
+  - `java/`: Java JARs (`sz-sdk.jar`, javadoc, sources)
+  - `dotnet/`: .NET NuGet package
+- **`etc/`**: Configuration files (`g2config.json`, `sz_engine_config.ini`)
+- **`resources/`**: Templates and database schemas (SQLite, PostgreSQL, MySQL, MSSQL, Oracle)
+- **`var/sqldb/`**: Default SQLite database (`G2C.db`)
+- **`data/`**: Address parsing and name data models
+
+## Using the SDK
+
+### Directory Structure
+
+```
+$env:SENZING_DIR/
+├── bin/              # Executables
+├── lib/              # DLLs (on PATH)
+├── sdk/              # Development SDKs
+│   ├── c/           # C headers
+│   ├── java/        # Java JARs
+│   └── dotnet/      # .NET package
+├── etc/              # Configuration
+├── resources/        # Templates & schemas
+├── var/sqldb/        # SQLite database
+└── data/             # Data models
+```
+
+### Configuration
+
+The main configuration file is located at:
+```powershell
+$env:SENZING_DIR\etc\sz_engine_config.ini
+```
+
+This file controls database connections, resource paths, and engine settings.
+
+### Using with C/C++
+
+```c
+#include "libSz.h"
+
+// Link against: Sz.lib
+// Ensure $env:SENZING_DIR\lib is in PATH for runtime DLLs
+```
+
+Header files are in: `$env:SENZING_DIR\sdk\c\`
+
+### Using with Java
+
+Add the SDK to your classpath:
+
+```powershell
+$env:CLASSPATH = "$env:SENZING_DIR\sdk\java\sz-sdk.jar;$env:CLASSPATH"
+```
+
+Or in your build tool (Maven, Gradle):
+```xml
+<dependency>
+  <systemPath>${env.SENZING_DIR}/sdk/java/sz-sdk.jar</systemPath>
+</dependency>
+```
+
+### Using with .NET
+
+Install the NuGet package from the SDK:
+
+```powershell
+cd $env:SENZING_DIR\sdk\dotnet
+# Extract and reference Senzing.Sdk.4.x.x.nupkg in your project
+```
+
+Or via NuGet Package Manager:
+```powershell
+Install-Package Senzing.Sdk -Source "$env:SENZING_DIR\sdk\dotnet"
+```
+
+### Using with Python
+
+If you have the Senzing Python SDK installed, ensure the runtime DLLs are accessible:
+
+```python
+import os
+os.environ['PATH'] = os.path.join(os.environ['SENZING_DIR'], 'lib') + ';' + os.environ['PATH']
+
+from senzing import SzEngine
+# Your code here
+```
+
+### Database Setup
+
+The SDK includes database schemas for multiple databases:
+
+```powershell
+# SQLite (default - already included)
+$env:SENZING_DIR\var\sqldb\G2C.db
+
+# PostgreSQL schema
+$env:SENZING_DIR\resources\schema\szcore-schema-postgresql-create.sql
+
+# MySQL schema
+$env:SENZING_DIR\resources\schema\szcore-schema-mysql-create.sql
+
+# MSSQL schema
+$env:SENZING_DIR\resources\schema\szcore-schema-mssql-create.sql
+```
+
+### Testing Your Installation
+
+Test that the DLLs are accessible:
+
+```powershell
+# Check if SQLite executable works
+& "$env:SENZING_DIR\bin\sqlite3.exe" --version
+
+# Verify DLLs are loadable
+Test-Path "$env:SENZING_DIR\lib\Sz.dll"
+
+# Check configuration file exists
+Get-Content "$env:SENZING_DIR\etc\sz_engine_config.ini"
+```
+
+### Common Use Cases
+
+**1. Entity Resolution Application Development**
+- Include C headers or Java/C# SDKs in your project
+- Configure database connection in `sz_engine_config.ini`
+- Link against runtime DLLs
+
+**2. Data Analysis with SQLite**
+- Use the included SQLite database at `$env:SENZING_DIR\var\sqldb\G2C.db`
+- Query with `sqlite3.exe` or your preferred SQLite tool
+
+**3. Integration with Enterprise Databases**
+- Use provided SQL schemas in `resources/schema/`
+- Update `sz_engine_config.ini` with your database connection string
 
 ## Troubleshooting
 
@@ -105,27 +248,71 @@ If you see an error about EULA acceptance:
 # List installed apps
 scoop list
 
-# Show detailed info
+# Show detailed info (version, install path, etc.)
 scoop info senzingsdk-runtime-unofficial
 
 # Check environment variables
 echo $env:SENZING_DIR
-echo $env:PATH
+$env:PATH -split ';' | Select-String 'senzing'
+
+# Verify DLLs are in PATH
+where.exe Sz.dll
 ```
+
+### Installation Fails or Gets Stuck
+
+If installation fails:
+
+```powershell
+# Clean up failed installation
+scoop uninstall senzingsdk-runtime-unofficial
+scoop cache rm senzingsdk-runtime-unofficial
+
+# Clear cache and retry
+scoop install senzingsdk-runtime-unofficial
+```
+
+### "File not found" or DLL Errors
+
+If you get DLL loading errors:
+
+1. Verify PATH is set correctly:
+   ```powershell
+   $env:PATH -split ';' | Select-String 'senzing'
+   ```
+
+2. Restart your terminal/IDE to pick up new environment variables
+
+3. Check DLLs exist:
+   ```powershell
+   dir $env:SENZING_DIR\lib\*.dll
+   ```
 
 ### Uninstall
 
 ```powershell
+# Uninstall the package
 scoop uninstall senzingsdk-runtime-unofficial
+
+# Remove the bucket (optional)
+scoop bucket rm senzingsdk-runtime-unofficial
 ```
 
-## Maintenance
+## Automatic Updates
 
-This bucket is automatically updated via GitHub Actions:
+This bucket is automatically maintained via GitHub Actions:
 
-- **Daily Check**: The workflow runs daily at 08:00 UTC to check for new versions
-- **Automatic PRs**: When a new version is detected, a pull request is automatically created
-- **Manual Trigger**: Maintainers can manually trigger the update workflow
+- **Hourly Checks**: The workflow runs every hour to check for new SDK versions
+- **Automatic Updates**: When a new version is detected, it's automatically committed to the repository
+- **Zero Maintenance**: No manual intervention required - updates happen automatically
+- **Update Frequency**: Typically within 1 hour of Senzing releasing a new version
+
+To get the latest version:
+
+```powershell
+scoop update  # Update bucket metadata
+scoop update senzingsdk-runtime-unofficial  # Update the package
+```
 
 ## Architecture
 
