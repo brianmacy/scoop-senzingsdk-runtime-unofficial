@@ -6,18 +6,38 @@ This is an **unofficial** Scoop bucket for installing the Senzing SDK Runtime on
 
 ### Install Scoop (if needed)
 
+**PowerShell (Recommended):**
+
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
 ```
 
+**Command Prompt (cmd.exe):**
+
+```cmd
+@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh'))" && SET "PATH=%USERPROFILE%\scoop\shims;%PATH%"
+```
+
 ### Add This Bucket and Install
+
+**PowerShell:**
 
 ```powershell
 # Add the bucket
 scoop bucket add senzingsdk-runtime-unofficial https://github.com/brianmacy/scoop-senzingsdk-runtime-unofficial
 
 # Install Senzing SDK Runtime
+scoop install senzingsdk-runtime-unofficial
+```
+
+**Command Prompt (cmd.exe):**
+
+```cmd
+REM Add the bucket
+scoop bucket add senzingsdk-runtime-unofficial https://github.com/brianmacy/scoop-senzingsdk-runtime-unofficial
+
+REM Install Senzing SDK Runtime
 scoop install senzingsdk-runtime-unofficial
 ```
 
@@ -29,7 +49,8 @@ The Senzing SDK Runtime requires acceptance of the End User License Agreement (E
 
 By default, you will be prompted to accept the EULA during installation:
 
-```powershell
+**PowerShell / Command Prompt:**
+```
 scoop install senzingsdk-runtime-unofficial
 # You will be prompted: Do you accept the Senzing EULA? (yes/no)
 ```
@@ -39,13 +60,23 @@ scoop install senzingsdk-runtime-unofficial
 For automated installations, you can accept the EULA in advance:
 
 **Option 1: Environment Variable (session only)**
+
+PowerShell:
 ```powershell
 $env:SENZING_EULA_ACCEPTED = "yes"
 scoop install senzingsdk-runtime-unofficial
 ```
 
+Command Prompt:
+```cmd
+set SENZING_EULA_ACCEPTED=yes
+scoop install senzingsdk-runtime-unofficial
+```
+
 **Option 2: Scoop Config (persistent)**
-```powershell
+
+PowerShell / Command Prompt:
+```
 scoop config SENZING_EULA_ACCEPTED yes
 scoop install senzingsdk-runtime-unofficial
 ```
@@ -81,6 +112,7 @@ After installation, the following environment variables are automatically config
 
 ### Verify Installation
 
+**PowerShell:**
 ```powershell
 # Check environment variable
 echo $env:SENZING_DIR
@@ -88,6 +120,16 @@ echo $env:SENZING_DIR
 
 # Verify directory structure
 dir $env:SENZING_DIR
+```
+
+**Command Prompt:**
+```cmd
+REM Check environment variable
+echo %SENZING_DIR%
+REM Output: C:\Users\<YourName>\scoop\apps\senzingsdk-runtime-unofficial\current\er
+
+REM Verify directory structure
+dir %SENZING_DIR%
 ```
 
 ### What's Included
@@ -126,9 +168,9 @@ $env:SENZING_DIR/
 ### Configuration
 
 The main configuration file is located at:
-```powershell
-$env:SENZING_DIR\etc\sz_engine_config.ini
-```
+
+PowerShell: `$env:SENZING_DIR\etc\sz_engine_config.ini`
+Command Prompt: `%SENZING_DIR%\etc\sz_engine_config.ini`
 
 This file controls database connections, resource paths, and engine settings.
 
@@ -206,6 +248,7 @@ $env:SENZING_DIR\resources\schema\szcore-schema-mssql-create.sql
 
 Test that the DLLs are accessible:
 
+**PowerShell:**
 ```powershell
 # Check if SQLite executable works
 & "$env:SENZING_DIR\bin\sqlite3.exe" --version
@@ -217,6 +260,18 @@ Test-Path "$env:SENZING_DIR\lib\Sz.dll"
 Get-Content "$env:SENZING_DIR\etc\sz_engine_config.ini"
 ```
 
+**Command Prompt:**
+```cmd
+REM Check if SQLite executable works
+"%SENZING_DIR%\bin\sqlite3.exe" --version
+
+REM Verify DLLs exist
+dir "%SENZING_DIR%\lib\Sz.dll"
+
+REM Check configuration file exists
+type "%SENZING_DIR%\etc\sz_engine_config.ini"
+```
+
 ### Common Use Cases
 
 **1. Entity Resolution Application Development**
@@ -225,7 +280,9 @@ Get-Content "$env:SENZING_DIR\etc\sz_engine_config.ini"
 - Link against runtime DLLs
 
 **2. Data Analysis with SQLite**
-- Use the included SQLite database at `$env:SENZING_DIR\var\sqldb\G2C.db`
+- Use the included SQLite database at:
+  - PowerShell: `$env:SENZING_DIR\var\sqldb\G2C.db`
+  - Command Prompt: `%SENZING_DIR%\var\sqldb\G2C.db`
 - Query with `sqlite3.exe` or your preferred SQLite tool
 
 **3. Integration with Enterprise Databases**
