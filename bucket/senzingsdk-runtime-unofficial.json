@@ -1,5 +1,5 @@
 {
-  "version": "4.2.1.26038",
+  "version": "4.2.2.26075",
   "description": "Senzing SDK Runtime for Windows (unofficial package)",
   "homepage": "https://senzing.com/senzing-api/",
   "license": {
@@ -22,8 +22,8 @@
   "extract_dir": "senzing",
   "architecture": {
     "64bit": {
-      "url": "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_4.2.1.26038.zip",
-      "hash": "31e585fb8c310050b0575e51df5ae356fa4246ecec47a39fc6f265db26576a51"
+      "url": "https://senzing-production-win.s3.amazonaws.com/SenzingSDK_4.2.2.26075.zip",
+      "hash": "a842796506b76214a1db31e5a247a0c2b9007a183c06c2c4b3186b6fa9314dab"
     }
   },
   "pre_install": [
