@@ -1,12 +1,19 @@
 {
   "version": "4.3.0.26135",
-  "description": "Senzing SDK Runtime for Windows (unofficial package)",
+  "description": "DEPRECATED - Use official bucket: github.com/Senzing/scoop-senzingsdk",
   "homepage": "https://senzing.com/senzing-api/",
   "license": {
     "identifier": "Proprietary",
     "url": "https://senzing.com/software-license-agreement/"
   },
   "notes": [
+    "*** DEPRECATED: This unofficial package is no longer maintained. ***",
+    "*** Please migrate to the official Senzing Scoop bucket:        ***",
+    "***   scoop uninstall senzingsdk-runtime-unofficial              ***",
+    "***   scoop bucket rm senzingsdk-runtime-unofficial              ***",
+    "***   scoop bucket add senzingsdk https://github.com/Senzing/scoop-senzingsdk ***",
+    "***   scoop install senzingsdk-runtime                           ***",
+    "",
     "Senzing SDK Runtime has been installed.",
     "",
     "Environment variables have been configured:",
@@ -27,6 +34,19 @@
     }
   },
   "pre_install": [
+    "Write-Host ''",
+    "Write-Host '╔══════════════════════════════════════════════════════════════════╗' -ForegroundColor Red",
+    "Write-Host '║  DEPRECATED: This unofficial package is no longer maintained.   ║' -ForegroundColor Red",
+    "Write-Host '║  Please migrate to the official Senzing Scoop bucket:           ║' -ForegroundColor Red",
+    "Write-Host '║                                                                 ║' -ForegroundColor Red",
+    "Write-Host '║    scoop uninstall senzingsdk-runtime-unofficial                ║' -ForegroundColor Red",
+    "Write-Host '║    scoop bucket rm senzingsdk-runtime-unofficial                ║' -ForegroundColor Red",
+    "Write-Host '║    scoop bucket add senzingsdk                                  ║' -ForegroundColor Red",
+    "Write-Host '║      https://github.com/Senzing/scoop-senzingsdk               ║' -ForegroundColor Red",
+    "Write-Host '║    scoop install senzingsdk-runtime                             ║' -ForegroundColor Red",
+    "Write-Host '╚══════════════════════════════════════════════════════════════════╝' -ForegroundColor Red",
+    "Write-Host ''",
+    "",
     "$eulaUrl = 'https://senzing.com/software-license-agreement/'",
     "",
     "# Check if EULA has been accepted",

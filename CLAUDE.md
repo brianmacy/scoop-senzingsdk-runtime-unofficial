@@ -2,9 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## DEPRECATED
+
+**This repository is deprecated.** Senzing now maintains an official Scoop bucket at [https://github.com/Senzing/scoop-senzingsdk](https://github.com/Senzing/scoop-senzingsdk). No further updates will be made to this repo.
+
 ## Repository Purpose
 
-This is an unofficial Scoop bucket for Senzing SDK packages. Scoop is a command-line installer for Windows that manages software packages. This repository contains JSON manifest files that define how to install and manage Senzing SDK components.
+This was an unofficial Scoop bucket for Senzing SDK packages. Scoop is a command-line installer for Windows that manages software packages. This repository contains JSON manifest files that define how to install and manage Senzing SDK components.
 
 **Current Packages:**
 - `senzingsdk-runtime-unofficial` - Senzing SDK Runtime
